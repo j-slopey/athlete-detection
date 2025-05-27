@@ -16,6 +16,7 @@ setup(
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
         (os.path.join('share', package_name, 'models/camera'), glob('models/camera/*')),
         (os.path.join('share', package_name, 'models/man'), glob('models/man/*')),
+        (os.path.join('share', package_name, 'models/AprilTag'), glob('models/AprilTag/*')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
     ],
     install_requires=['setuptools'],
