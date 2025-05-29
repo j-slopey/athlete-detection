@@ -27,6 +27,11 @@ def generate_launch_description():
         output='screen'
     )
 
+    simulation_movements = Node(
+        package='field_camera_sim',
+        executable='simulation_movements',
+    )
+    
     object_detection = Node(
         package='field_camera_sim',
         executable='object_detection',
@@ -44,5 +49,6 @@ def generate_launch_description():
        
         gazebo_launch,
         gz_bridge,
+        simulation_movements,
         object_detection
     ])

@@ -25,7 +25,8 @@ setup(
     license='BSD-3-Clause',
     entry_points={
         'console_scripts': [
-            'object_detection = field_camera_sim.object_detection:main'
+            'object_detection = field_camera_sim.object_detection:main',
+            'simulation_movements = field_camera_sim.simulation_movements:main'
         ],
     },
 )

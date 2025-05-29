@@ -3,11 +3,34 @@
   <world name="field">
 
     <!-- Camera sensor plugin -->
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+     
+    <physics name="1ms" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+    </physics>
+
+    <gravity>0 0 0</gravity>
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin> 
+
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
-    <!-- Plugin for 3D sim viewer -->
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+
 
     <!-- Background and lighting -->
     <scene>
@@ -82,25 +105,5 @@
       <name>simulation_camera</name>
       <pose>0 25 3 0 0 4.71238898038</pose> <!-- Set location of camera (Currently at midfield, 40m from the center). Z should be 1/2 of stand height-->
     </include>
-
-    <!-- Dummy Humans -->
-    <include>
-      <uri>model://man</uri>
-      <name>simulation_man_2</name>
-      <pose>-5 5 0.9144 1.57079632679 0 0</pose> <!-- Set location of man (Currently at center of the field). Z should be 1/2 of man height-->
-    </include>
-
-    <include>
-      <uri>model://man</uri>
-      <name>simulation_man_3</name>
-      <pose>5 -5 0.9144 1.57079632679 0 0</pose> <!-- Set location of man (Currently at center of the field). Z should be 1/2 of man height-->
-    </include>
-
-    <include>
-      <uri>model://AprilTag</uri>
-      <name>simulation_AprilTag</name>
-      <pose>0 15 0 0 0 0</pose> <!-- Set location of man (Currently at center of the field). Z should be 1/2 of man height-->
-    </include>
-    
   </world>
 </sdf>
