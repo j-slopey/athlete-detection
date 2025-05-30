@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial.transform import Rotation as R
 import time
 import random
 
@@ -8,38 +9,41 @@ from gz.msgs11.pose_pb2 import Pose
 from gz.msgs11.boolean_pb2 import Boolean
 
 
+class GzMessage:
+    def __init__(self):
+        self.node = Node()
 
-def spawnModel(node, name, filepath, position, orientation):
+    def spawnModel(self, name, filepath, position, orientation):
 
-    spawn_model_service = "/world/field/create"
-    spawn_request = EntityFactory(name = name, sdf_filename = filepath)
+        spawn_model_service = "/world/field/create"
+        spawn_request = EntityFactory(name = name, sdf_filename = filepath)
 
-    spawn_request.pose.position.x = position[0]
-    spawn_request.pose.position.y = position[1]
-    spawn_request.pose.position.z = position[2]
+        spawn_request.pose.position.x = position[0]
+        spawn_request.pose.position.y = position[1]
+        spawn_request.pose.position.z = position[2]
 
-    spawn_request.pose.orientation.x = orientation[0]
-    spawn_request.pose.orientation.y = orientation[1]
-    spawn_request.pose.orientation.z = orientation[2]
-    spawn_request.pose.orientation.w = orientation[3]
+        spawn_request.pose.orientation.x = orientation[0]
+        spawn_request.pose.orientation.y = orientation[1]
+        spawn_request.pose.orientation.z = orientation[2]
+        spawn_request.pose.orientation.w = orientation[3]
 
-    return node.request(spawn_model_service, spawn_request, EntityFactory, Boolean, timeout=1000)
+        return self.node.request(spawn_model_service, spawn_request, EntityFactory, Boolean, timeout=1000)
 
-def setModelPose(node, name, position, orientation):
-    
-    set_pose_service = "/world/field/set_pose"
-    spawn_request = Pose(name=name)
+    def setModelPose(self, name, position, orientation):
+        
+        set_pose_service = "/world/field/set_pose"
+        spawn_request = Pose(name=name)
 
-    spawn_request.position.x = position[0]
-    spawn_request.position.y = position[1]
-    spawn_request.position.z = position[2]
+        spawn_request.position.x = position[0]
+        spawn_request.position.y = position[1]
+        spawn_request.position.z = position[2]
 
-    spawn_request.orientation.x = orientation[0]
-    spawn_request.orientation.y = orientation[1]
-    spawn_request.orientation.z = orientation[2]
-    spawn_request.orientation.w = orientation[3]
+        spawn_request.orientation.x = orientation[0]
+        spawn_request.orientation.y = orientation[1]
+        spawn_request.orientation.z = orientation[2]
+        spawn_request.orientation.w = orientation[3]
 
-    return node.request(set_pose_service, spawn_request, Pose, Boolean, timeout=1000)
+        return self.node.request(set_pose_service, spawn_request, Pose, Boolean, timeout=1000)
 
 
 
@@ -54,13 +58,21 @@ MIN_Y = -15
 # Velocity multiplier when bouncing off of field boundary
 DAMPING_FACTOR = 0.5
 def main(args=None):
-    node = Node()
-    dummy_human_sdf = "model://man"
+    time.sleep(5)
+    gz = GzMessage()
+
+    apriltag_model = "model://AprilTag"
+    dummy_human_model = "model://man"
+
     positions = []
     velocities = []
     accelerations = []
     dummy_names = []
 
+    gz.spawnModel("simulation_AprilTag", apriltag_model, [0, 15, 0], [0, 0, 0, 0])
+
+
+    # Spawn Dummies
     for num in range(DUMMY_COUNT):
         model_name = "simulation_man_" + str(num)
         # Z postition is 1/2 of model height
@@ -70,7 +82,7 @@ def main(args=None):
         velocities.append(np.array([0,0,0]))
         accelerations.append(np.array([0,0,0]))
         # Rotation on X axis to stand model on feet and Z to face the camera
-        result = spawnModel(node, model_name, dummy_human_sdf, spawn_position, [ 0, 0.7071068, 0.7071068, 0 ])
+        result = gz.spawnModel(model_name, dummy_human_model, spawn_position, [ 0, 0.7071068, 0.7071068, 0 ])
         if result[0] != True:
             print("Model failed to spawn")
 
@@ -105,7 +117,7 @@ def main(args=None):
             change_acc_y = random.uniform(-ACCELERATION_MAX_STEP, ACCELERATION_MAX_STEP)
             accelerations_change = np.array([change_acc_x, change_acc_y, 0])
             accelerations[i] = accelerations[i] + (TIME_STEP * accelerations_change)
-            setModelPose(node, dummy_names[i], positions[i], [ 0, 0.7071068, 0.7071068, 0 ])
+            gz.setModelPose(dummy_names[i], positions[i], [ 0, 0.7071068, 0.7071068, 0 ])
 
 if __name__ == '__main__':
     main()
