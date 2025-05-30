@@ -9,7 +9,7 @@ import logging
 
 logging.getLogger("ultralytics").setLevel(logging.WARNING)
 model = YOLO("yolov8x-worldv2.pt")
-# model.set_classes(["person"])
+model.set_classes(["person"])
 
 class ImageSubscriber(Node):
 
@@ -30,7 +30,7 @@ class ImageSubscriber(Node):
 
     def image_detection(self, msg):
         frame = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        frame = frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
         if frame is not None:
             

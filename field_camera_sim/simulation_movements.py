@@ -3,10 +3,13 @@ from scipy.spatial.transform import Rotation as R
 import time
 import random
 
+import rclpy
+from rclpy.node import Node as RosNode
 from gz.transport13 import Node
 from gz.msgs11.entity_factory_pb2 import EntityFactory
 from gz.msgs11.pose_pb2 import Pose
 from gz.msgs11.boolean_pb2 import Boolean
+
 
 
 class GzMessage:
@@ -44,22 +47,33 @@ class GzMessage:
         spawn_request.orientation.w = orientation[3]
 
         return self.node.request(set_pose_service, spawn_request, Pose, Boolean, timeout=1000)
+    
+def getParam(name, default, type):
+    param = RosNode("Parameter_Collector")
+    param.declare_parameter(name, default)
+    if type == "int":
+        result = param.get_parameter(name).get_parameter_value().integer_value
+    elif type == "str":
+        result = param.get_parameter(name).get_parameter_value().string_value
+    elif type == "bool":
+        result = param.get_parameter(name).get_parameter_value().bool_value
+    param.destroy_node()
+    return result
+    
 
-
-
-
-TIME_STEP = 1/30 
-ACCELERATION_MAX_STEP = .5
-DUMMY_COUNT = 3
-MAX_X = 15
-MIN_X = -15
-MAX_Y = 15
-MIN_Y = -15 
-# Velocity multiplier when bouncing off of field boundary
-DAMPING_FACTOR = 0.5
 def main(args=None):
-    time.sleep(5)
+
+    TIME_STEP = 1/60 
+    ACCELERATION_MAX_STEP = .5
+    MAX_X = 15
+    MIN_X = -15
+    MAX_Y = 15
+    MIN_Y = -15 
+    # Velocity multiplier when bouncing off of field boundary
+    DAMPING_FACTOR = 0.5
     gz = GzMessage()
+    rclpy.init()
+    DUMMY_COUNT = getParam("num_dummies", 3, "int")
 
     apriltag_model = "model://AprilTag"
     dummy_human_model = "model://man"
@@ -69,9 +83,10 @@ def main(args=None):
     accelerations = []
     dummy_names = []
 
+    time.sleep(5)
+
+    # Spawn AprilTag
     gz.spawnModel("simulation_AprilTag", apriltag_model, [0, 15, 0], [0, 0, 0, 0])
-
-
     # Spawn Dummies
     for num in range(DUMMY_COUNT):
         model_name = "simulation_man_" + str(num)
@@ -87,7 +102,7 @@ def main(args=None):
             print("Model failed to spawn")
 
     # Allow time for models to appear in simulation
-    time.sleep(5)
+    time.sleep(2)
 
     while True:
         time.sleep(TIME_STEP)

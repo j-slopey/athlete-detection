@@ -2,7 +2,8 @@ import os
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
+from launch.substitutions import LaunchConfiguration
+from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
@@ -18,6 +19,12 @@ def generate_launch_description():
         launch_arguments={'gz_args': '-r ' + os.path.join(pkg_field_camera_sim, 'worlds', 'field.sdf')}.items(),
     )
 
+    num_dummies = DeclareLaunchArgument(
+        'num_dummies',
+        default_value='3',
+        description='Number of dummy models to spawn in the simulation.'
+    )
+
     gz_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -30,8 +37,12 @@ def generate_launch_description():
     simulation_movements = Node(
         package='field_camera_sim',
         executable='simulation_movements',
+        parameters=[{
+                'num_dummies': LaunchConfiguration('num_dummies')
+            }]
     )
     
+
     object_detection = Node(
         package='field_camera_sim',
         executable='object_detection',
@@ -39,6 +50,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        num_dummies,
+
         SetEnvironmentVariable(
             name='GZ_SIM_RESOURCE_PATH',
             value=[
